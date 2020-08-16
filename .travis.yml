@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build - andre2ar/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true andre2ar/react-test npm test
+
+after_success:
+  - docker build -t andre2ar/OverComplexFibonacciCalculator-client ./client
+  - docker build -t andre2ar/OverComplexFibonacciCalculator-nginx ./nginx
+  - docker build -t andre2ar/OverComplexFibonacciCalculator-server ./server
+  - docker build -t andre2ar/OverComplexFibonacciCalculator-worker ./worker
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push them to docker hub
+  - docker push andre2ar/OverComplexFibonacciCalculator-client
+  - docker push andre2ar/OverComplexFibonacciCalculator-nginx
+  - docker push andre2ar/OverComplexFibonacciCalculator-server
+  - docker push andre2ar/OverComplexFibonacciCalculator-worker
